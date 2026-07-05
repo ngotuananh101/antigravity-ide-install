@@ -7,7 +7,7 @@ TMP_DIR="/tmp"
 INSTALL_DIR="$HOME/.local/share/AntigravityIDE"
 SYMLINK_DIR="$HOME/.local/bin"
 VERSION_FILE="$INSTALL_DIR/.installed_version"
-BIN_NAME="antigravity"
+BIN_NAME="antigravity-ide"
 
 info()  { echo -e "\e[94m$1\e[39m"; }
 ok()    { echo -e "\e[32m$1\e[39m"; }
@@ -63,7 +63,7 @@ mkdir -p "$INSTALL_DIR"
 tar -xzf "$TMP_DIR/$ARCHIVE_FILENAME" -C "$INSTALL_DIR" --strip-components=1
 rm -f "$TMP_DIR/$ARCHIVE_FILENAME"
 
-# Locate binary and symlink it (tarball internal layout not verified — adjust BIN_NAME if needed)
+# Locate binary and symlink it
 BIN_PATH=$(find "$INSTALL_DIR" -maxdepth 3 -type f -iname "$BIN_NAME" | head -n1)
 [ -z "$BIN_PATH" ] && { err "Could not find executable '$BIN_NAME' in $INSTALL_DIR"; exit 1; }
 chmod +x "$BIN_PATH"
