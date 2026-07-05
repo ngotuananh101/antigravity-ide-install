@@ -6,8 +6,12 @@ RELEASES_API="https://antigravity-ide-auto-updater-974169037036.us-central1.run.
 TMP_DIR="/tmp"
 INSTALL_DIR="$HOME/.local/share/AntigravityIDE"
 SYMLINK_DIR="$HOME/.local/bin"
+DESKTOP_DIR="$HOME/.local/share/applications"
+ICON_DIR="$HOME/.local/share/icons/hicolor/512x512/apps"
 VERSION_FILE="$INSTALL_DIR/.installed_version"
 BIN_NAME="antigravity-ide"
+DESKTOP_FILE="$DESKTOP_DIR/$BIN_NAME.desktop"
+ICON_DEST="$ICON_DIR/$BIN_NAME.png"
 
 info()  { echo -e "\e[94m$1\e[39m"; }
 ok()    { echo -e "\e[32m$1\e[39m"; }
@@ -74,8 +78,35 @@ ln -s "$BIN_PATH" "$SYMLINK_DIR/$BIN_NAME"
 
 echo "$LATEST_VERSION" > "$VERSION_FILE"
 
+# Install desktop icon (app menu launcher)
+info "Setting up desktop icon..."
+mkdir -p "$DESKTOP_DIR" "$ICON_DIR"
+
+ICON_SRC="$INSTALL_DIR/resources/app/resources/linux/code.png"
+
+if [ -f "$ICON_SRC" ]; then
+  cp -f "$ICON_SRC" "$ICON_DEST"
+else
+  info "No icon file found in the package; the launcher will use a generic icon."
+fi
+
+cat > "$DESKTOP_FILE" << DESKTOP_EOF
+[Desktop Entry]
+Name=Antigravity IDE
+Comment=Antigravity IDE
+Exec=$SYMLINK_DIR/$BIN_NAME %F
+Icon=${ICON_DEST}
+Terminal=false
+Type=Application
+Categories=Development;IDE;
+StartupWMClass=$BIN_NAME
+DESKTOP_EOF
+
+command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+
 ok "Done! Antigravity CLI $LATEST_VERSION installed at $INSTALL_DIR"
-ok "Run '$BIN_NAME' to use it (make sure $SYMLINK_DIR is in your PATH)"
+ok "Run '$BIN_NAME' to use it (make sure $SYMLINK_DIR is in your PATH), or launch it from your application menu."
 
 case ":$PATH:" in
   *":$SYMLINK_DIR:"*) ;;
