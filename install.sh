@@ -94,16 +94,25 @@ cat > "$DESKTOP_FILE" << DESKTOP_EOF
 [Desktop Entry]
 Name=Antigravity IDE
 Comment=Antigravity IDE
-Exec=$SYMLINK_DIR/$BIN_NAME %F
+Exec=$SYMLINK_DIR/$BIN_NAME %u
 Icon=${ICON_DEST}
 Terminal=false
 Type=Application
 Categories=Development;IDE;
 StartupWMClass=$BIN_NAME
+MimeType=x-scheme-handler/antigravity-ide;
 DESKTOP_EOF
 
 command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
 command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+
+# Register as the default handler for antigravity-ide:// links (e.g. OAuth callbacks)
+if command -v xdg-mime >/dev/null 2>&1; then
+  xdg-mime default "$(basename "$DESKTOP_FILE")" x-scheme-handler/antigravity-ide
+  info "Registered as default handler for antigravity-ide:// links."
+else
+  info "xdg-mime not found; skipping antigravity-ide:// URL scheme registration."
+fi
 
 ok "Done! Antigravity CLI $LATEST_VERSION installed at $INSTALL_DIR"
 ok "Run '$BIN_NAME' to use it (make sure $SYMLINK_DIR is in your PATH), or launch it from your application menu."
